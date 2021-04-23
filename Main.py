@@ -4,10 +4,6 @@ from Bank import Bank
 from Agent import Agent
 from Strategies import Greedy, Cooperative
 
-avg_contributions = []
-iterations = []
-payoffs = []
-
 
 def iteration(bank, agents, i):
     iterations.append(i)
@@ -16,35 +12,37 @@ def iteration(bank, agents, i):
     bank.multiply_deposit()
     payoff = bank.pay_out(agents)
     payoffs.append(payoff)
-    # for agent in agents:
-    #     print(agent)
 
-
-bank = Bank(1.5)
-agents = []
 
 greedy_strategy = Greedy()
 cooperative_strategy = Cooperative()
 
-free_riders_num = 1
-agents_num = 10
+for a in range(0, 9):
+    avg_contributions, iterations, payoffs = [], [], []
+    bank = Bank(1.5)
+    agents = []
+    free_riders_num = a
+    agents_num = 10
 
-for i in range(0, free_riders_num):
-    agents.append(Agent(f'GreedyAgent{i}', greedy_strategy))
+    for i in range(0, free_riders_num):
+        agents.append(Agent(f'GreedyAgent{i}', greedy_strategy))
 
-for i in range(free_riders_num, agents_num):
-    agents.append(Agent(f'CooperativeAgent{i}', cooperative_strategy))
+    for i in range(free_riders_num, agents_num):
+        agents.append(Agent(f'CooperativeAgent{i}', cooperative_strategy))
 
-for i in range(0, 10):
-    print('Iteration', i)
-    iteration(bank, agents, i)
+    for i in range(0, 10):
+        # print('Iteration', i)
+        iteration(bank, agents, i)
 
-for agent in agents:
-    print(agent)
+    # for agent in agents:
+    #     print(agent)
+    # print(avg_contributions)
+    # print(payoffs)
 
-print(avg_contributions)
-print(payoffs)
-
-plt.plot(iterations, payoffs, iterations, avg_contributions)
-plt.ylabel('some numbers')
-plt.show()
+    plt.figure()
+    plt.plot(iterations, avg_contributions)
+    plt.xlabel('iteration')
+    plt.ylabel('average contribution')
+    title = f'Average contribution per iteration - {free_riders_num} free-riders'
+    plt.title(title)
+    plt.savefig(f'plots/binary_model/avg_contribution_{free_riders_num}_freeriders.png')
