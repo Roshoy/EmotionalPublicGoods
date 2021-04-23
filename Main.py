@@ -16,8 +16,9 @@ def iteration(bank, agents, i):
 
 greedy_strategy = Greedy()
 cooperative_strategy = Cooperative()
+final_sum = []
 
-for a in range(0, 9):
+for a in range(0, 11):
     avg_contributions, iterations, payoffs = [], [], []
     bank = Bank(1.5)
     agents = []
@@ -38,11 +39,37 @@ for a in range(0, 9):
     #     print(agent)
     # print(avg_contributions)
     # print(payoffs)
+    
+    agent_balance = [(x.name,x.money) for x in agents]
+    agent_balance = sorted(agent_balance,key=lambda x: x[1])
+    final_sum.append(sum([a.money for a in agents]))
 
     plt.figure()
     plt.plot(iterations, avg_contributions)
     plt.xlabel('iteration')
     plt.ylabel('average contribution')
-    title = f'Average contribution per iteration - {free_riders_num} free-riders'
+    title = f'Average contribution per iteration - {free_riders_num} free-riders - {agents_num} agents'
     plt.title(title)
     plt.savefig(f'plots/binary_model/avg_contribution_{free_riders_num}_freeriders.png')
+    plt.close()
+    agent_balance = list(zip(*agent_balance))
+    plt.figure()
+    plt.plot(agent_balance[0], agent_balance[1])
+    plt.xticks(rotation=90)
+    plt.xlabel('Greedy/Cooperative')
+    plt.ylabel('Final balance')
+    title = f'Final balance per greedy cooperative - {free_riders_num} freeriders - {agents_num} agents'
+    plt.title(title)
+    plt.tight_layout()
+    plt.savefig(f'plots/binary_model/final_balance_{free_riders_num}_freeriders.png')
+    plt.close()
+
+plt.figure()
+plt.plot(range(agents_num+1), final_sum)
+plt.xlabel('Number of Freeriders')
+plt.ylabel('Final summary balance')
+title = f'Final summary balance per number of freeriders - {agents_num} agents'
+plt.title(title)
+plt.tight_layout()
+plt.savefig(f'plots/binary_model/final_sum_{free_riders_num}_freeriders.png')
+plt.close()
