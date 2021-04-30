@@ -2,7 +2,7 @@ import random
 import matplotlib.pyplot as plt
 from Bank import Bank
 from Agent import Agent
-from Strategies import Greedy, Cooperative
+from Strategies import Greedy, Cooperative, EmotionalStrategy
 
 
 def iteration(bank, agents, i):
@@ -17,6 +17,7 @@ def iteration(bank, agents, i):
 greedy_strategy = Greedy()
 cooperative_strategy = Cooperative()
 final_sum = []
+dir = 'plots/binary_model/'
 
 for a in range(0, 11):
     avg_contributions, iterations, payoffs = [], [], []
@@ -30,6 +31,7 @@ for a in range(0, 11):
 
     for i in range(free_riders_num, agents_num):
         agents.append(Agent(f'CooperativeAgent{i}', cooperative_strategy))
+        # agents.append(Agent(f'CooperativeAgent{i}', EmotionalStrategy(anger_threshold=1, gratitude_threshold=1)))
 
     for i in range(0, 10):
         # print('Iteration', i)
@@ -39,9 +41,9 @@ for a in range(0, 11):
     #     print(agent)
     # print(avg_contributions)
     # print(payoffs)
-    
-    agent_balance = [(x.name,x.money) for x in agents]
-    agent_balance = sorted(agent_balance,key=lambda x: x[1])
+
+    agent_balance = [(x.name, x.money) for x in agents]
+    agent_balance = sorted(agent_balance, key=lambda x: x[1])
     final_sum.append(sum([a.money for a in agents]))
 
     plt.figure()
@@ -50,7 +52,7 @@ for a in range(0, 11):
     plt.ylabel('average contribution')
     title = f'Average contribution per iteration - {free_riders_num} free-riders - {agents_num} agents'
     plt.title(title)
-    plt.savefig(f'plots/binary_model/avg_contribution_{free_riders_num}_freeriders.png')
+    plt.savefig(f'{dir}avg_contribution_{free_riders_num}_freeriders.png')
     plt.close()
     agent_balance = list(zip(*agent_balance))
     plt.figure()
@@ -61,15 +63,15 @@ for a in range(0, 11):
     title = f'Final balance per greedy cooperative - {free_riders_num} freeriders - {agents_num} agents'
     plt.title(title)
     plt.tight_layout()
-    plt.savefig(f'plots/binary_model/final_balance_{free_riders_num}_freeriders.png')
+    plt.savefig(f'{dir}final_balance_{free_riders_num}_freeriders.png')
     plt.close()
 
 plt.figure()
-plt.plot(range(agents_num+1), final_sum)
+plt.plot(range(agents_num + 1), final_sum)
 plt.xlabel('Number of Freeriders')
 plt.ylabel('Final summary balance')
 title = f'Final summary balance per number of freeriders - {agents_num} agents'
 plt.title(title)
 plt.tight_layout()
-plt.savefig(f'plots/binary_model/final_sum_{free_riders_num}_freeriders.png')
+plt.savefig(f'{dir}final_sum_{free_riders_num}_freeriders.png')
 plt.close()

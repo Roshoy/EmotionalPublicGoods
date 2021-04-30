@@ -1,4 +1,6 @@
 class Greedy:
+    gratitude_level = 0
+
     def __init__(self, greed_level=1.0):
         if greed_level > 1.0 or greed_level < 0.0:
             raise Exception('Greed level must be in range 0.0 - 1.0')
@@ -35,3 +37,33 @@ class Cooperative:
 
     def __str__(self):
         return 'COOPERATIVE strategy'
+
+
+class EmotionalStrategy:
+    def __init__(self, anger_threshold=2, gratitude_threshold=2):
+        if (not isinstance(anger_threshold, int)) or (not isinstance(gratitude_threshold, int)) \
+                or anger_threshold < 1 or gratitude_threshold < 1:
+            raise Exception('Anger and gratitude thresholds must be integers greater or equal than 1')
+        self.anger_threshold = anger_threshold
+        self.gratitude_threshold = gratitude_threshold
+        self.anger_level = 0
+        self.gratitude = 0
+
+        def calculate_contribution(self, agent_deposit, payoff_delta):
+            if payoff_delta < 0:
+                self.anger_level += 1
+            else:
+                self.gratitude_level += 1
+
+            # If one of these values is equal to or greater than the corresponding simulated emotional threshold, then
+            # the value gets reset and the agent’s behaviour changes due to the threshold being reached.
+            if self.anger_level == self.anger_threshold:
+                self.anger_level = 0
+                return 0.0
+
+            if self.gratitude_level == self.gratitude_threshold:
+                self.gratitude_level = 0
+                return agent_deposit
+
+            # default "neutral" payoff
+            return 0.5 * agent_deposit

@@ -1,7 +1,8 @@
 class Agent:
     def __init__(self, name, strategy, start_deposit=20):
         self.money = start_deposit
-        self.last_money = 0
+        self.last_payoff = 0
+        self.current_payoff = 0
         self.name = name
         self.strategy = strategy
 
@@ -11,6 +12,8 @@ class Agent:
         return contribution
 
     def receive(self, amount):
+        self.last_payoff = self.current_payoff
+        self.current_payoff = amount
         self.money += amount
 
     def __str__(self):
