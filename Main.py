@@ -6,76 +6,113 @@ from Strategies import Greedy, Cooperative, EmotionalStrategy
 from pathlib import Path
 
 
-def iteration(bank, agents, i):
-    iterations.append(i)
-    avg_contribution = bank.pay_in(agents)
-    avg_contributions.append(avg_contribution)
-    bank.multiply_deposit()
-    payoff = bank.pay_out(agents)
-    payoffs.append(payoff)
+def binary():
+    dir = 'plots/binary_model/'
+    Path(dir).mkdir(parents=True, exist_ok=True)
 
+    greedy_strategy = Greedy()
+    cooperative_strategy = Cooperative()
+    final_sum = []
 
-greedy_strategy = Greedy()
-cooperative_strategy = Cooperative()
-final_sum = []
+    def iteration(bank, agents, i):
+        iterations.append(i)
+        avg_contribution = bank.pay_in(agents)
+        avg_contributions.append(avg_contribution)
+        bank.multiply_deposit()
+        payoff = bank.pay_out(agents)
+        payoffs.append(payoff)
 
-# dir = 'plots/binary_model/'
-dir = 'plots/emotions_model/'
-Path(dir).mkdir(parents=True, exist_ok=True)
+    for a in range(0, 11):
+        avg_contributions, iterations, payoffs = [], [], []
+        bank = Bank(1.5)
+        agents = []
+        free_riders_num = a
+        agents_num = 10
 
-for a in range(0, 11):
-    avg_contributions, iterations, payoffs = [], [], []
-    bank = Bank(1.5)
-    agents = []
-    free_riders_num = a
-    agents_num = 10
+        for i in range(0, free_riders_num):
+            agents.append(Agent(f'GreedyAgent{i}', greedy_strategy))
 
-    for i in range(0, free_riders_num):
-        agents.append(Agent(f'GreedyAgent{i}', greedy_strategy))
+        for i in range(free_riders_num, agents_num):
+            agents.append(Agent(f'CooperativeAgent{i}', cooperative_strategy))
 
-    for i in range(free_riders_num, agents_num):
-        # agents.append(Agent(f'CooperativeAgent{i}', cooperative_strategy))
-        agents.append(Agent(f'CooperativeAgent{i}', EmotionalStrategy(anger_threshold=1, gratitude_threshold=1)))
+        for i in range(0, 10):
+            # print('Iteration', i)
+            iteration(bank, agents, i)
 
-    for i in range(0, 10):
-        # print('Iteration', i)
-        iteration(bank, agents, i)
+        agent_balance = [(x.name, x.money) for x in agents]
+        agent_balance = sorted(agent_balance, key=lambda x: x[1])
+        final_sum.append(sum([a.money for a in agents]))
 
-    # for agent in agents:
-    #     print(agent)
-    # print(avg_contributions)
-    # print(payoffs)
-
-    agent_balance = [(x.name, x.money) for x in agents]
-    agent_balance = sorted(agent_balance, key=lambda x: x[1])
-    final_sum.append(sum([a.money for a in agents]))
+        plt.figure()
+        plt.plot(iterations, avg_contributions)
+        plt.xlabel('iteration')
+        plt.ylabel('average contribution')
+        title = f'Average contribution per iteration - {free_riders_num} free-riders - {agents_num} agents'
+        plt.title(title)
+        plt.savefig(f'{dir}avg_contribution_{free_riders_num}_freeriders.png')
+        plt.close()
+        agent_balance = list(zip(*agent_balance))
+        plt.figure()
+        plt.plot(agent_balance[0], agent_balance[1])
+        plt.xticks(rotation=90)
+        plt.xlabel('Greedy/Cooperative')
+        plt.ylabel('Final balance')
+        title = f'Final balance per greedy cooperative - {free_riders_num} freeriders - {agents_num} agents'
+        plt.title(title)
+        plt.tight_layout()
+        plt.savefig(f'{dir}final_balance_{free_riders_num}_freeriders.png')
+        plt.close()
 
     plt.figure()
-    plt.plot(iterations, avg_contributions)
-    plt.xlabel('iteration')
-    plt.ylabel('average contribution')
-    title = f'Average contribution per iteration - {free_riders_num} free-riders - {agents_num} agents'
-    plt.title(title)
-    plt.savefig(f'{dir}avg_contribution_{free_riders_num}_freeriders.png')
-    plt.close()
-    agent_balance = list(zip(*agent_balance))
-    plt.figure()
-    plt.plot(agent_balance[0], agent_balance[1])
-    plt.xticks(rotation=90)
-    plt.xlabel('Greedy/Cooperative')
-    plt.ylabel('Final balance')
-    title = f'Final balance per greedy cooperative - {free_riders_num} freeriders - {agents_num} agents'
+    plt.plot(range(agents_num + 1), final_sum)
+    plt.xlabel('Number of Freeriders')
+    plt.ylabel('Final summary balance')
+    title = f'Final summary balance per number of freeriders - {agents_num} agents'
     plt.title(title)
     plt.tight_layout()
-    plt.savefig(f'{dir}final_balance_{free_riders_num}_freeriders.png')
+    plt.savefig(f'{dir}final_sum_{free_riders_num}_freeriders.png')
     plt.close()
 
-plt.figure()
-plt.plot(range(agents_num + 1), final_sum)
-plt.xlabel('Number of Freeriders')
-plt.ylabel('Final summary balance')
-title = f'Final summary balance per number of freeriders - {agents_num} agents'
-plt.title(title)
-plt.tight_layout()
-plt.savefig(f'{dir}final_sum_{free_riders_num}_freeriders.png')
-plt.close()
+
+def emotions():
+    dir = 'plots/emotions_model/'
+    Path(dir).mkdir(parents=True, exist_ok=True)
+
+    emotional_agents = []
+    bank = Bank(1.5)
+    iterations = 10
+
+    thresholds = [(a, g) for a in range(1, 4) for g in range(1, 4)]
+    thresholds.append((2, 2))
+
+    for (anger, gratitude) in thresholds:
+        # anger = random.randint(1, 3)
+        # gratitude = random.randint(1, 3)
+        name = f'Agent(A={anger}, G={gratitude})'
+        strategy = EmotionalStrategy(anger_threshold=anger, gratitude_threshold=gratitude)
+        emotional_agents.append(Agent(name, strategy))
+
+    for i in range(iterations):
+        bank.pay_in(emotional_agents)
+        bank.multiply_deposit()
+        bank.pay_out(emotional_agents)
+
+    final_money = list(map(lambda agent: agent.money, emotional_agents))
+    labels = list(map(lambda agent: agent.name, emotional_agents))
+
+    x = range(len(labels))  # the label locations
+    width = 0.5  # the width of the bars
+
+    fig, ax = plt.subplots()
+
+    ax.bar(x, final_money, width=width)
+    ax.set_ylabel('Final deposit')
+    ax.set_title('Deposit by agents')
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels, rotation=90)
+    fig.tight_layout()
+
+    plt.savefig(f'{dir}deposit_by_emotional_agents.png')
+
+
+emotions()
