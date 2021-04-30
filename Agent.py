@@ -7,7 +7,8 @@ class Agent:
         self.strategy = strategy
 
     def contribute(self):
-        contribution = self.strategy.calculate_contribution(self.money)
+        payoff_delta = self.current_payoff - self.last_payoff
+        contribution = self.strategy.calculate_contribution(self.money, payoff_delta=payoff_delta)
         self.money -= contribution
         return contribution
 

@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from Bank import Bank
 from Agent import Agent
 from Strategies import Greedy, Cooperative, EmotionalStrategy
+from pathlib import Path
 
 
 def iteration(bank, agents, i):
@@ -17,7 +18,10 @@ def iteration(bank, agents, i):
 greedy_strategy = Greedy()
 cooperative_strategy = Cooperative()
 final_sum = []
-dir = 'plots/binary_model/'
+
+# dir = 'plots/binary_model/'
+dir = 'plots/emotions_model/'
+Path(dir).mkdir(parents=True, exist_ok=True)
 
 for a in range(0, 11):
     avg_contributions, iterations, payoffs = [], [], []
@@ -30,8 +34,8 @@ for a in range(0, 11):
         agents.append(Agent(f'GreedyAgent{i}', greedy_strategy))
 
     for i in range(free_riders_num, agents_num):
-        agents.append(Agent(f'CooperativeAgent{i}', cooperative_strategy))
-        # agents.append(Agent(f'CooperativeAgent{i}', EmotionalStrategy(anger_threshold=1, gratitude_threshold=1)))
+        # agents.append(Agent(f'CooperativeAgent{i}', cooperative_strategy))
+        agents.append(Agent(f'CooperativeAgent{i}', EmotionalStrategy(anger_threshold=1, gratitude_threshold=1)))
 
     for i in range(0, 10):
         # print('Iteration', i)
