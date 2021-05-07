@@ -1,3 +1,5 @@
+import copy
+
 class Greedy:
     gratitude_level = 0
 
@@ -35,19 +37,43 @@ class Cooperative:
         # TODO: implement in future
         pass
 
+    def update_to_other_agents(self, agent_num):
+        pass
+
     def __str__(self):
         return 'COOPERATIVE strategy'
 
 
 class EmotionalStrategy:
-    def __init__(self, anger_threshold=2, gratitude_threshold=2):
+    def __init__(self, anger_threshold=2, gratitude_threshold=2, admiration_threshold=2):
         if (not isinstance(anger_threshold, int)) or (not isinstance(gratitude_threshold, int)) \
-                or anger_threshold < 1 or gratitude_threshold < 1:
+                or (not isinstance(admiration_threshold, int)) \
+                or anger_threshold < 1 or gratitude_threshold < 1 or admiration_threshold < 1:
             raise Exception('Anger and gratitude thresholds must be integers greater or equal than 1')
         self.anger_threshold = anger_threshold
         self.gratitude_threshold = gratitude_threshold
+        self.admiration_threshold = admiration_threshold
         self.anger_level = 0
         self.gratitude_level = 0
+        self.admiration = {}
+
+    def update_to_other_agents(self, other_agents, agent): # admiration
+        max_payoff_agent = None
+        for other in other_agents:
+            if other.payoff_summary <= agent.payoff_summary:
+                continue
+
+            if other.name not in self.admiration.keys():
+                self.admiration[other.name] = 1
+            else:
+                self.admiration[other.name] += 1
+
+            if self.admiration[other.name] >= self.admiration_threshold:
+                if max_payoff_agent is None \
+                    or max_payoff_agent.payoff_summary < other.payoff_summary:
+                    max_payoff_agent=other
+        return max_payoff_agent
+
 
     def calculate_contribution(self, agent_deposit, payoff_delta):
         if payoff_delta < 0:
@@ -67,3 +93,6 @@ class EmotionalStrategy:
 
         # default "neutral" payoff
         return 0.5 * agent_deposit
+
+    def __str__(self):
+        return f'EmotionalStrategy: ({self.anger_threshold},{self.gratitude_threshold},{self.admiration_threshold})'

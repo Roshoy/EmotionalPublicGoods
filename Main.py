@@ -78,6 +78,18 @@ def emotions():
     dir = 'plots/emotions_model/'
     Path(dir).mkdir(parents=True, exist_ok=True)
 
+    predefined_strategies = {
+        'responsive':   (1,1),
+        'active':       (1,2),
+        'distrustful':  (1,3),
+        'accepting':    (2,1),
+        'impartial':    (2,2),
+        'non-accepting':(2,3),
+        'trustful':     (3,1),
+        'passive':      (3,2),
+        'stubborn':     (3,3)
+    }
+
     emotional_agents = []
     bank = Bank(1.5)
     iterations = 10
@@ -85,17 +97,21 @@ def emotions():
     thresholds = [(a, g) for a in range(1, 4) for g in range(1, 4)]
     thresholds.append((2, 2))
 
+    agent_num = 0
     for (anger, gratitude) in thresholds:
         # anger = random.randint(1, 3)
         # gratitude = random.randint(1, 3)
-        name = f'Agent(A={anger}, G={gratitude})'
-        strategy = EmotionalStrategy(anger_threshold=anger, gratitude_threshold=gratitude)
+        agent_num += 1
+        name = f'Agent{agent_num}(A={anger}, G={gratitude})'
+        strategy = EmotionalStrategy(anger_threshold=anger, gratitude_threshold=gratitude, admiration_threshold=5)
         emotional_agents.append(Agent(name, strategy))
 
     for i in range(iterations):
         bank.pay_in(emotional_agents)
         bank.multiply_deposit()
         bank.pay_out(emotional_agents)
+        for agent in emotional_agents:
+            agent.get_inspired(emotional_agents)
 
     final_money = list(map(lambda agent: agent.money, emotional_agents))
     labels = list(map(lambda agent: agent.name, emotional_agents))
