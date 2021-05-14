@@ -17,6 +17,9 @@ class Greedy:
         # TODO: implement in future
         pass
 
+    def update_to_other_agents(self, other_agents, agent):
+        pass
+
     def __str__(self):
         return 'GREEDY strategy'
 
@@ -37,7 +40,7 @@ class Cooperative:
         # TODO: implement in future
         pass
 
-    def update_to_other_agents(self, agent_num):
+    def update_to_other_agents(self, other_agents, agent):
         pass
 
     def __str__(self):
