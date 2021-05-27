@@ -1,5 +1,6 @@
 import copy
 
+
 class Agent:
     def __init__(self, name, strategy, start_deposit=20):
         self.money = start_deposit

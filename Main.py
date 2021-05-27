@@ -79,15 +79,15 @@ def emotions(greedy_count=0, coop_count=0, admiration=5):
     Path(dir).mkdir(parents=True, exist_ok=True)
 
     predefined_strategies = {
-        'responsive':   (1,1),
-        'active':       (1,2),
-        'distrustful':  (1,3),
-        'accepting':    (2,1),
-        'impartial':    (2,2),
-        'non-accepting':(2,3),
-        'trustful':     (3,1),
-        'passive':      (3,2),
-        'stubborn':     (3,3)
+        'responsive': (1, 1),
+        'active': (1, 2),
+        'distrustful': (1, 3),
+        'accepting': (2, 1),
+        'impartial': (2, 2),
+        'non-accepting': (2, 3),
+        'trustful': (3, 1),
+        'passive': (3, 2),
+        'stubborn': (3, 3)
     }
 
     emotional_agents = []
@@ -103,7 +103,8 @@ def emotions(greedy_count=0, coop_count=0, admiration=5):
         # gratitude = random.randint(1, 3)
         agent_num += 1
         name = f'Agent{agent_num}(A={anger}, G={gratitude})'
-        strategy = EmotionalStrategy(anger_threshold=anger, gratitude_threshold=gratitude, admiration_threshold=admiration)
+        strategy = EmotionalStrategy(anger_threshold=anger, gratitude_threshold=gratitude,
+                                     admiration_threshold=admiration)
         emotional_agents.append(Agent(name, strategy))
 
     for i in range(greedy_count):
@@ -142,18 +143,17 @@ def emotions(greedy_count=0, coop_count=0, admiration=5):
 
     plt.savefig(f'{dir}deposit_by_emotional_agents_with_others_adm{admiration}.png')
 
-
-    counts = [0,0,0]
+    counts = [0, 0, 0]
     for agent in emotional_agents:
-        if isinstance(agent.strategy,Greedy):
+        if isinstance(agent.strategy, Greedy):
             counts[0] += 1
-        elif isinstance(agent.strategy,Cooperative):
+        elif isinstance(agent.strategy, Cooperative):
             counts[1] += 1
         elif isinstance(agent.strategy, EmotionalStrategy):
             counts[2] += 1
-    
+
     ls = ['Greedy', 'Cooperative', 'Emotional']
-    
+
     fig, ax = plt.subplots()
 
     ax.bar(ls, counts, width=width)
@@ -166,4 +166,4 @@ def emotions(greedy_count=0, coop_count=0, admiration=5):
     plt.savefig(f'{dir}final_state_of_strats_emotion_and_others.png')
 
 
-emotions(3,3, admiration=10)
+emotions(3, 3, admiration=10)

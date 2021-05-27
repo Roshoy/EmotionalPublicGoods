@@ -1,4 +1,5 @@
-import copy
+from Qlearning import get_next_action, update_q_table
+
 
 class Greedy:
     gratitude_level = 0
@@ -48,7 +49,7 @@ class Cooperative:
 
 
 class EmotionalStrategy:
-    def __init__(self, anger_threshold=2, gratitude_threshold=2, admiration_threshold=2):
+    def __init__(self, anger_threshold=2, gratitude_threshold=2, admiration_threshold=2, is_smart=False):
         if (not isinstance(anger_threshold, int)) or (not isinstance(gratitude_threshold, int)) \
                 or (not isinstance(admiration_threshold, int)) \
                 or anger_threshold < 1 or gratitude_threshold < 1 or admiration_threshold < 1:
@@ -56,11 +57,12 @@ class EmotionalStrategy:
         self.anger_threshold = anger_threshold
         self.gratitude_threshold = gratitude_threshold
         self.admiration_threshold = admiration_threshold
+        self.is_smart = is_smart
         self.anger_level = 0
         self.gratitude_level = 0
         self.admiration = {}
 
-    def update_to_other_agents(self, other_agents, agent): # admiration
+    def update_to_other_agents(self, other_agents, agent):  # admiration
         max_payoff_agent = None
         for other in other_agents:
             if other.payoff_summary <= agent.payoff_summary:
@@ -73,12 +75,12 @@ class EmotionalStrategy:
 
             if self.admiration[other.name] >= self.admiration_threshold:
                 if max_payoff_agent is None \
-                    or max_payoff_agent.payoff_summary < other.payoff_summary:
-                    max_payoff_agent=other
+                        or max_payoff_agent.payoff_summary < other.payoff_summary:
+                    max_payoff_agent = other
         return max_payoff_agent
 
-
-    def calculate_contribution(self, agent_deposit, payoff_delta):
+    def calculate_contribution(self, agent_deposit, payoff_delta, last_action=None):
+        previous_state = (self.anger_level, self.gratitude_level)
         if payoff_delta < 0:
             self.anger_level += 1
         else:
@@ -93,6 +95,13 @@ class EmotionalStrategy:
         if self.gratitude_level == self.gratitude_threshold:
             self.gratitude_level = 0
             return agent_deposit
+
+        if self.is_smart:
+            current_state = (self.anger_level, self.gratitude_level)
+            action = get_next_action(current_state)  # action = 0/1, (0 - not pay, 1 - pay)
+            reward = payoff_delta
+            update_q_table(previous_state, current_state, action, reward)
+            return action * agent_deposit
 
         # default "neutral" payoff
         return 0.5 * agent_deposit

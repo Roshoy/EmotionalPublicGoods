@@ -12,7 +12,7 @@ class Bank:
             agent_contribution = agent.contribute()
             self.deposit += agent_contribution
             total_contribution += agent_contribution
-        return total_contribution / len(agents)  # average contirbution
+        return total_contribution / len(agents)  # average contribution
 
     def pay_out(self, agents):
         payoff = self.deposit / len(agents)

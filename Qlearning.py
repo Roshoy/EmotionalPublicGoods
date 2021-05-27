@@ -8,7 +8,7 @@ learning_rate = 0.9  # the rate at which the agent should learn
 # initialization
 q_values = {}
 t = range(0, 3)
-states = [(x, y, z) for x in t for y in t for z in t]
+states = [(anger, gratitude) for anger in t for gratitude in t]
 for state in states:
     q_values[state] = [0, 0]  # [not pay, pay]
 
