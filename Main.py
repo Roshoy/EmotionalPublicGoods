@@ -4,6 +4,7 @@ from Bank import Bank
 from Agent import Agent
 from Strategies import Greedy, Cooperative, EmotionalStrategy
 from pathlib import Path
+from PublicGoods import PublicGoods
 
 
 def binary():
@@ -119,6 +120,9 @@ def emotions(greedy_count=0, coop_count=0, admiration=5):
         strategy = Cooperative()
         emotional_agents.append(Agent(name, strategy))
 
+    strategy = EmotionalStrategy(is_smart=True)
+    emotional_agents.append(Agent('Smart', strategy))
+
     for i in range(iterations):
         bank.pay_in(emotional_agents)
         bank.multiply_deposit()
@@ -166,4 +170,127 @@ def emotions(greedy_count=0, coop_count=0, admiration=5):
     plt.savefig(f'{dir}final_state_of_strats_emotion_and_others.png')
 
 
-emotions(3, 3, admiration=10)
+def emotions(greedy_count=0, coop_count=0, admiration=5):
+    dir = 'plots/emotions_model/'
+    Path(dir).mkdir(parents=True, exist_ok=True)
+
+    predefined_strategies = {
+        'responsive': (1, 1),
+        'active': (1, 2),
+        'distrustful': (1, 3),
+        'accepting': (2, 1),
+        'impartial': (2, 2),
+        'non-accepting': (2, 3),
+        'trustful': (3, 1),
+        'passive': (3, 2),
+        'stubborn': (3, 3)
+    }
+
+    emotional_agents = []
+    bank = Bank(1.5)
+    iterations = 10
+
+    thresholds = [(a, g) for a in range(1, 4) for g in range(1, 4)]
+    thresholds.append((2, 2))
+
+    agent_num = 0
+    for (anger, gratitude) in thresholds:
+        # anger = random.randint(1, 3)
+        # gratitude = random.randint(1, 3)
+        agent_num += 1
+        name = f'Agent{agent_num}(A={anger}, G={gratitude})'
+        strategy = EmotionalStrategy(anger_threshold=anger, gratitude_threshold=gratitude,
+                                     admiration_threshold=admiration)
+        emotional_agents.append(Agent(name, strategy))
+
+    for i in range(greedy_count):
+        agent_num += 1
+        name = f'Agent{agent_num}(Greedy)'
+        strategy = Greedy()
+        emotional_agents.append(Agent(name, strategy))
+
+    for i in range(coop_count):
+        agent_num += 1
+        name = f'Agent{agent_num}(Coop)'
+        strategy = Cooperative()
+        emotional_agents.append(Agent(name, strategy))
+
+    strategy = EmotionalStrategy(is_smart=True)
+    emotional_agents.append(Agent('Smart', strategy))
+
+    for i in range(iterations):
+        bank.pay_in(emotional_agents)
+        bank.multiply_deposit()
+        bank.pay_out(emotional_agents)
+        for agent in emotional_agents:
+            agent.get_inspired(emotional_agents)
+
+    final_money = list(map(lambda agent: agent.money, emotional_agents))
+    labels = list(map(lambda agent: agent.name, emotional_agents))
+
+    x = range(len(labels))  # the label locations
+    width = 0.5  # the width of the bars
+
+    fig, ax = plt.subplots()
+
+    ax.bar(x, final_money, width=width)
+    ax.set_ylabel('Final deposit')
+    ax.set_title('Deposit by agents')
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels, rotation=90)
+    fig.tight_layout()
+
+    plt.savefig(f'{dir}deposit_by_emotional_agents_with_others_adm{admiration}.png')
+
+    counts = [0, 0, 0]
+    for agent in emotional_agents:
+        if isinstance(agent.strategy, Greedy):
+            counts[0] += 1
+        elif isinstance(agent.strategy, Cooperative):
+            counts[1] += 1
+        elif isinstance(agent.strategy, EmotionalStrategy):
+            counts[2] += 1
+
+    ls = ['Greedy', 'Cooperative', 'Emotional']
+
+    fig, ax = plt.subplots()
+
+    ax.bar(ls, counts, width=width)
+    ax.set_ylabel('Count of agents')
+    ax.set_title('Final state of strategies count')
+    ax.set_xticks(range(3))
+    ax.set_xticklabels(ls, rotation=90)
+    fig.tight_layout()
+
+    plt.savefig(f'{dir}final_state_of_strats_emotion_and_others.png')
+
+
+
+# emotions(3, 3, admiration=10)
+
+pg = PublicGoods()
+
+for i in range(1,5):
+    pg.addCooperativeAgent(name=f"Coop {i}")
+
+for i in range(1,5):
+    pg.addGreedyAgent(name=f"Greed {i}")
+
+for i in range(1,5):
+    pg.addLearningAgent(name=f"Learning {i}")
+        
+pg.run()
+
+final_money = [a.money for a in pg.agents]
+labels = [a.name for a in pg.agents]
+x = range(len(labels))  # the label locations
+width = 0.5  # the width of the bars
+
+fig, ax = plt.subplots()
+ax.bar(x, final_money, width=width)
+ax.set_ylabel('Final deposit')
+ax.set_title('Deposit by agents')
+ax.set_xticks(x)
+ax.set_xticklabels(labels, rotation=90)
+fig.tight_layout()
+plt.show()

@@ -21,6 +21,9 @@ class Greedy:
     def update_to_other_agents(self, other_agents, agent):
         pass
 
+    def reset(self):
+        pass
+
     def __str__(self):
         return 'GREEDY strategy'
 
@@ -43,6 +46,9 @@ class Cooperative:
 
     def update_to_other_agents(self, other_agents, agent):
         pass
+    
+    def reset(self):
+        pass
 
     def __str__(self):
         return 'COOPERATIVE strategy'
@@ -63,6 +69,8 @@ class EmotionalStrategy:
         self.admiration = {}
 
     def update_to_other_agents(self, other_agents, agent):  # admiration
+        if self.is_smart:
+            return None
         max_payoff_agent = None
         for other in other_agents:
             if other.payoff_summary <= agent.payoff_summary:
@@ -105,6 +113,11 @@ class EmotionalStrategy:
 
         # default "neutral" payoff
         return 0.5 * agent_deposit
+
+    def reset(self):
+        self.anger_level = 0
+        self.gratitude_level = 0
+        self.admiration = {}
 
     def __str__(self):
         return f'EmotionalStrategy: ({self.anger_threshold},{self.gratitude_threshold},{self.admiration_threshold})'
