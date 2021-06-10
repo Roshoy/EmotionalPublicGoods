@@ -10,6 +10,7 @@ class Agent:
         self.strategy = strategy
         self.payoff_summary = 0
         self.strategy_changed_count = 0
+        self.balances = []
 
     def contribute(self):
         payoff_delta = self.current_payoff - self.last_payoff
@@ -22,6 +23,7 @@ class Agent:
         self.last_payoff = self.current_payoff
         self.current_payoff = amount
         self.money += amount
+        self.balances.append(self.money)
         self.payoff_summary += amount
 
     def get_inspired(self, other_agents):
@@ -31,6 +33,15 @@ class Agent:
         print(str(self) + ' getting inspired by ' + str(inspiring_agent))
         self.strategy = copy.deepcopy(inspiring_agent.strategy)
         self.strategy_changed_count += 1
+
+    def reset(self):
+        self.money = 20
+        self.last_payoff = 0
+        self.current_payoff = 0
+        self.payoff_summary = 0
+        self.strategy_changed_count = 0
+        self.balances = []
+        self.strategy.reset()
 
     def __str__(self):
         return f'{self.name}: {self.money:.2f} | {self.strategy}'

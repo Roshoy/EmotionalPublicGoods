@@ -1,4 +1,5 @@
 import random
+
 import matplotlib.pyplot as plt
 from Bank import Bank
 from Agent import Agent
@@ -265,32 +266,41 @@ def emotions(greedy_count=0, coop_count=0, admiration=5):
     plt.savefig(f'{dir}final_state_of_strats_emotion_and_others.png')
 
 
-
 # emotions(3, 3, admiration=10)
 
 pg = PublicGoods()
 
-for i in range(1,5):
+pg.addLearningAgent(name=f"q-Learning")
+
+thresholds = [(a, g) for a in range(1, 4) for g in range(1, 4)]
+
+for (a, g) in thresholds:
+    pg.addEmotionalAgent(anger=a, gratitude=g, name=f"Emot {a, g}")
+
+for i in range(5):
+    pg.addEmotionalAgent(anger=random.randint(1, 3), gratitude=random.randint(1, 3), name=f"Emot")
+
+for i in range(1, 4):
     pg.addCooperativeAgent(name=f"Coop {i}")
 
-for i in range(1,5):
+for i in range(1, 4):
     pg.addGreedyAgent(name=f"Greed {i}")
 
-for i in range(1,5):
-    pg.addLearningAgent(name=f"Learning {i}")
-        
-pg.run()
 
-final_money = [a.money for a in pg.agents]
-labels = [a.name for a in pg.agents]
-x = range(len(labels))  # the label locations
-width = 0.5  # the width of the bars
+for i in range(10):
+    pg.run()
 
-fig, ax = plt.subplots()
-ax.bar(x, final_money, width=width)
-ax.set_ylabel('Final deposit')
-ax.set_title('Deposit by agents')
-ax.set_xticks(x)
-ax.set_xticklabels(labels, rotation=90)
-fig.tight_layout()
-plt.show()
+    final_money = [a.money for a in pg.agents]
+    labels = [a.name for a in pg.agents]
+    x = range(len(labels))  # the label locations
+    width = 0.5  # the width of the bars
+
+    fig, ax = plt.subplots()
+    ax.bar(x, final_money, width=width)
+    ax.set_ylabel('Final deposit')
+    ax.set_title('Deposit by agents')
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels, rotation=90)
+    fig.tight_layout()
+    plt.show()
+    pg.reset()

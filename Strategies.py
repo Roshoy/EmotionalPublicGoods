@@ -46,7 +46,7 @@ class Cooperative:
 
     def update_to_other_agents(self, other_agents, agent):
         pass
-    
+
     def reset(self):
         pass
 
@@ -98,17 +98,20 @@ class EmotionalStrategy:
         # the value gets reset and the agent’s behaviour changes due to the threshold being reached.
         if self.anger_level == self.anger_threshold:
             self.anger_level = 0
-            return 0.0
+            if not self.is_smart:
+                return 0.0
 
         if self.gratitude_level == self.gratitude_threshold:
             self.gratitude_level = 0
-            return agent_deposit
+            if not self.is_smart:
+                return agent_deposit
 
         if self.is_smart:
             current_state = (self.anger_level, self.gratitude_level)
-            action = get_next_action(current_state)  # action = 0/1, (0 - not pay, 1 - pay)
+            action = get_next_action(current_state)  # action = how much agent should contribute
             reward = payoff_delta
-            update_q_table(previous_state, current_state, action, reward)
+            action_type = 1 if action > 0.5 else 0
+            update_q_table(previous_state, current_state, action_type, reward)
             return action * agent_deposit
 
         # default "neutral" payoff
